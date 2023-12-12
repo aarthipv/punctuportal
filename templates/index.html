@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PunctuPortal</title>
+    <link rel="icon" type="image/x-icon" href="static/images/download.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans+Collegiate+One&family=Pixelify+Sans&family=Source+Code+Pro&display=swap" rel="stylesheet">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body {
+            
+            font-family: 'Source Code Pro', monospace;
+          background: linear-gradient(-45deg, #213261, #442771, #254049, #214224);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        @keyframes gradient {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+        }
+        
+        form {
+          background-color: transparent;  
+          font-family: 'Source Code Pro', monospace;
+          color: white;
+          border: 1px solid #555;
+          box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        
+        input, button {
+          background-color: #444;
+          color: #ddd;
+          border: none;
+        }
+        
+        #attendanceTable {
+        background-color: black;
+        color: white;
+        margin:28px;
+        
+
+        border: 3px solid black;  
+        }
+
+        #attendanceTable th,
+        #attendanceTable td {
+        
+            border: 1px solid #444;
+             padding: 8px; 
+        }
+        
+        a {
+          color: #58a6ff;
+        }
+        form {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        a {
+        color: #4791ff;
+        text-decoration: none; 
+        }
+
+        a:hover {
+        text-decoration: underline;
+        }
+        
+        
+      </style>
+    
+</head>
+<body>
+    
+    <form id="attendanceForm">
+        <label for="usn">Enter USN:</label>
+        <input type="text" id="usn" required>
+
+        <label for="dob">Select Date of Birth:</label>
+        <input type="date" id="dob" required>
+
+        <button type="button" onclick="fetchAttendance()">Submit</button>
+    </form>
+
+
+    <div id="result"></div>
+
+    <script>
+        function fetchAttendance() {
+
+        // Code to get USN and DOB
+        
+        fetch('/fetch_attendance', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({usn: $('#usn').val(), dob: $('#dob').val()}) 
+        })
+        .then(response => {
+        if(!response.ok) {
+            throw new Error('Network error'); 
+        }
+        return response.json();
+        })
+        .then(data => {
+        displayData(data);  
+        })
+        .catch(error => {
+        displayError();  
+        });
+
+        }
+        function displayError(message) {
+
+        alert("Error!!! Check credentials again");
+
+        }
+
+        function displayData(attendanceData, errorMessage) {
+            var resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            if (errorMessage) {
+                resultDiv.innerHTML = `<p style="color: red;">${errorMessage}</p>`;
+                return;
+            }
+
+            if (!attendanceData || attendanceData.length === 0) {
+                resultDiv.innerHTML = '<p>Attendance data not available.</p>';
+                return;
+            }
+
+            var tableHtml = '<table id ="attendanceTable">';
+            tableHtml += '<tr><th>Code</th><th>Name</th><th>Present</th><th>Absent</th><th>Remaining</th><th>Current Attendance %</th><th>Missable Classes (75%)</th><th>Missable Classes (80%)</th></tr>';
+
+            attendanceData.forEach(subjectData => {
+                let color = "";
+    
+                if(subjectData.percent < 75) {
+                    color = "#ff4d4d"; 
+                }
+                else if(subjectData.percent < 80) {
+                    color = "#4d79ff";
+                }
+                tableHtml += `<tr style="background-color: ${color}">`;
+                tableHtml += `<td>${subjectData.code}</td>`;
+                tableHtml += `<td>${subjectData.name}</td>`;
+                tableHtml += `<td>${subjectData.present}</td>`;
+                tableHtml += `<td>${subjectData.absent}</td>`;
+                tableHtml += `<td>${subjectData.remaining}</td>`;
+                tableHtml += `<td>${subjectData.percent.toFixed(0)}%</td>`;
+                tableHtml += `<td>${subjectData.bunk_75}</td>`;
+                tableHtml += `<td>${subjectData.bunk_80}</td>`;
+                tableHtml += `</tr>`;
+            });
+
+            tableHtml += '</table>';
+        
+
+            var madeByHtml =  
+    '<div style="text-align: center; margin-top: 20px;">' +
+    '<span style="color: white;">Coded by </span>' + 
+    '<a href="https://www.linkedin.com/in/aarthi-prashanth-1606b0253/" target="_blank">Aarthi</a>' +
+    '</div>';
+        var resultHtml = tableHtml + madeByHtml;
+
+        // Set concatenated HTML  
+            resultDiv.innerHTML = resultHtml;
+            
+        }
+    </script>
+</body>
+</html>
