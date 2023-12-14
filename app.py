@@ -37,6 +37,7 @@ def calculate_and_display_data(attendance_data):
         present = int(subject_data.get("present", 0))
         absent = int(subject_data.get("absent", 0)) 
         remaining = int(subject_data.get("remaining", 0))
+        total=present+absent+remaining
 
 
         if total == remaining:
