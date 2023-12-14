@@ -39,7 +39,7 @@ def calculate_and_display_data(attendance_data):
         remaining = int(subject_data.get("remaining", 0))
 
 
-        if totoal==remaining:
+        if total==remaining:
             percent=100
         else:
             total = present + absent + remaining
