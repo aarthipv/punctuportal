@@ -40,9 +40,7 @@ def calculate_and_display_data(attendance_data):
 
         total = present + absent + remaining
         
-        if total == remaining:
-            percent = 100
-        else: 
+        if :
             percent = present / (total - remaining) * 100
 
         bunk_75 = int(0.25 * total) - absent  
