@@ -63,6 +63,9 @@ def calculate_and_display_data(attendance_data):
         if bunk_80 < 0:
             bunk_80 = "Attendance low"
 
+        if present==0:
+            percent=0
+
         result = {
             'code': code,
             'name': name, 
